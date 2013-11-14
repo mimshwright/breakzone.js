@@ -10,40 +10,47 @@ if (typeof define === "function" && define.amd) {
  * Sets up a system for dispatching events when breakpoints change.
  * @class
  */
-PointBreak = function(breakpoints) {
+PointBreak = function(breakpoints, targetWindow) {
 
 	var lastBreakpoint;
 	var that = this;
 
-	this.window = window;
+	if ( targetWindow !== undefined ) {
+		this.window = targetWindow;
+	} else {
+		this.window = window;
+	}
 
-	this.breakpoints = [];
+
+	this.breakpoints = {};
 
 	if (breakpoints !== undefined && breakpoints !== null) {
-		for (var name in breakpoints) {
-			this.registerBreakpoint(breakpoints[name],name);
-		}
+		this.registerBreakpoint(breakpoints);
 	}
 
 	lastBreakpoint = this.getBreakpointForSize(this.getWidth());
 
-	this.window.addEventListener("resize", function (e) { that.onResize(e); } );
+	this.getWindow().addEventListener("resize", function (e) { that.onResize(e); } );
 	document.addEventListener("load", function (e) { that.onResize(e); } );
 };
 
 /** Shortcut for listening to the BREAKPOINT_CHANGE_EVENT on the window */
 PointBreak.prototype.addChangeListener = function (handler) {
-	this.window.addEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+	this.getWindow().addEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
 };
 
 /** Shortcut for un-listening to the BREAKPOINT_CHANGE_EVENT on the window */
 PointBreak.prototype.removeChangeListener = function (handler) {
-	this.window.removeEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+	this.getWindow().removeEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
 };
 
 /** Returns the current width of the screen */
 PointBreak.prototype.getWidth = function () {
-	return this.window.innerWidth;
+	return this.getWindow().innerWidth;
+};
+
+PointBreak.prototype.getWindow = function () {
+	return this.window;
 };
 
 /**
@@ -60,7 +67,7 @@ PointBreak.prototype.onResize = function (event) {
 		breakpointChangeEvent.oldBreakpoint = this.lastBreakpoint;
 		breakpointChangeEvent.newBreakpoint = currentBreakpoint;
 		breakpointChangeEvent.width = newWidth;
-		this.window.dispatchEvent(breakpointChangeEvent);
+		this.getWindow().dispatchEvent(breakpointChangeEvent);
 
 		// Disptach a special event type for this breakpoint name
 		// e.g. "smallBreakpoint"
@@ -69,7 +76,7 @@ PointBreak.prototype.onResize = function (event) {
 		specificBreakpointEvent.oldBreakpoint = this.lastBreakpoint;
 		specificBreakpointEvent.newBreakpoint = currentBreakpoint;
 		specificBreakpointEvent.width = newWidth;
-		this.window.dispatchEvent(specificBreakpointEvent);
+		this.getWindow().dispatchEvent(specificBreakpointEvent);
 		this.lastBreakpoint = currentBreakpoint;
 	}
 };
@@ -115,17 +122,29 @@ PointBreak.prototype.getCurrentBreakpoint = function () {
 /**
  * Add a breakpoint with `name` at the specified `width`.
  */
-PointBreak.prototype.registerBreakpoint = function (width, name) {
-	this.breakpoints[name] = width;
+PointBreak.prototype.registerBreakpoint = function (object_or_name, width) {
+	var obj, name;
+	if (typeof(object_or_name) == "string" && !isNaN(width)) {
+		name = object_or_name;
+		obj = {};
+		obj[name] = width;
+	} else {
+		obj = object_or_name;
+	}
 
-	// Add a new version of "on" for this breakpoint.
-	var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-	this["add" + capitalizedName + "Listener"] = function (handler) {
-		this.window.addEventListener(name + "Breakpoint", handler);
-	};
-	this["remove" + capitalizedName + "Listener"] = function (handler) {
-		this.window.removeEventListener(name + "Breakpoint", handler);
-	};
+	for (name in obj) {
+		this.breakpoints[name] = obj[name];
+
+		// Add a new version of "on" for this breakpoint.
+		var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+		this["add" + capitalizedName + "Listener"] = function (handler) {
+			this.getWindow().addEventListener(name + "Breakpoint", handler);
+		};
+		this["remove" + capitalizedName + "Listener"] = function (handler) {
+			this.getWindow().removeEventListener(name + "Breakpoint", handler);
+		};
+	}
+
 };
 
 /**
