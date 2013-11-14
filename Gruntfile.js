@@ -1,34 +1,39 @@
 module.exports = function(grunt) {
-	grunt.initConfig({
+    grunt.initConfig({
 
-		jsSrcPath: 'src',
-		deployPath: 'lib',
-		testPath: 'test',
-		demoPath: 'demo',
+        jsSrcPath: 'src',
+        deployPath: 'lib',
+        testPath: 'test',
+        demoPath: 'demo',
 
-		clean: ["<%=deployPath%>"],
+        clean: ["<%=deployPath%>"],
 
-		jshint: {
-			all: ['<%=jsSrcPath%>']
-		},
+        jshint: {
+            ignore_warning: {
+                options: {
+                    '-W083': true
+                },
+                src: ['<%=jsSrcPath%>']
+            },
+        },
 
-		uglify: {
-			deploy: {
-				files: [{
-					expand: true,     // Enable dynamic expansion.
-					cwd: '<%=jsSrcPath%>',      // Src matches are relative to this path.
-					src: ['**/*.js'], // Actual pattern(s) to match.
-					dest: '<%=deployPath%>',   // Destination path prefix.
-					ext: '.min.js',   // Dest filepaths will have this extension.
-				}]
-			}
-		},
+        uglify: {
+            deploy: {
+                files: [{
+                    expand: true,     // Enable dynamic expansion.
+                    cwd: '<%=jsSrcPath%>',      // Src matches are relative to this path.
+                    src: ['**/*.js'], // Actual pattern(s) to match.
+                    dest: '<%=deployPath%>',   // Destination path prefix.
+                    ext: '.min.js',   // Dest filepaths will have this extension.
+                }]
+            }
+        },
 
-		qunit: {
-				files: ['<%=testPath%>/**/*.html']
-		},
+        qunit: {
+                files: ['<%=testPath%>/**/*.html']
+        },
 
-		open: {
+        open: {
             test : {
               path: '<%=testPath%>/index.html',
               app: 'Google Chrome'
@@ -39,14 +44,14 @@ module.exports = function(grunt) {
             }
         },
 
-		watch: {
-			js: {
-				files: '<%=jsSrcPath%>/**/*.js',
-				tasks: ['js:dev']
-			}
-		},
+        watch: {
+            js: {
+                files: '<%=jsSrcPath%>/**/*.js',
+                tasks: ['js:dev']
+            }
+        },
 
-		bump: {
+        bump: {
           options: {
             files: ['package.json'],
             updateConfigs: [],
@@ -59,25 +64,25 @@ module.exports = function(grunt) {
             push: false
           }
         }
-	});
+    });
 
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-qunit');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-open');
 
-	grunt.registerTask('default', ['dev']);
-	grunt.registerTask('dev', ['js:dev']);
-	grunt.registerTask('deploy', ['clean', 'js:deploy']);
+    grunt.registerTask('default', ['dev']);
+    grunt.registerTask('dev', ['js:dev']);
+    grunt.registerTask('deploy', ['clean', 'js:deploy']);
 
-	grunt.registerTask('js', ['js:dev']);
-	grunt.registerTask('js:dev', ['lint', 'qunit']);
-	grunt.registerTask('js:deploy', ['lint', 'qunit', 'uglify']);
-	grunt.registerTask('lint', ['jshint']);
-	grunt.registerTask('test', ['js:dev', 'open:test']);
-	grunt.registerTask('demo', ['deploy', 'open:demo']);
+    grunt.registerTask('js', ['js:dev']);
+    grunt.registerTask('js:dev', ['lint' ]);
+    grunt.registerTask('js:deploy', ['lint', 'uglify']);
+    grunt.registerTask('lint', ['jshint']);
+    grunt.registerTask('test', ['js:dev', 'open:test']);
+    grunt.registerTask('demo', ['deploy', 'open:demo']);
 
 };
