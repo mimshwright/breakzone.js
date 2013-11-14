@@ -11,7 +11,6 @@ module.exports = function(grunt) {
         jshint: {
             ignore_warning: {
                 options: {
-                    '-W083': true
                 },
                 src: ['<%=jsSrcPath%>']
             },
