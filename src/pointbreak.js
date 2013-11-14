@@ -140,18 +140,20 @@ PointBreak.prototype.registerBreakpoint = function (object_or_name, width) {
 	}
 
 	for (name in obj) {
-		this.breakpoints[name] = obj[name];
-
-		// Add a new version of "on" for this breakpoint.
-		var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-		this["add" + capitalizedName + "Listener"] = function (handler) {
-			this.getWindow().addEventListener(name + "Breakpoint", handler);
-		};
-		this["remove" + capitalizedName + "Listener"] = function (handler) {
-			this.getWindow().removeEventListener(name + "Breakpoint", handler);
-		};
+		this._registerSingleBreakpoint(name, obj[name]);
 	}
+};
+PointBreak.prototype._registerSingleBreakpoint = function(name, width) {
+	this.breakpoints[name] = width;
 
+	// Add a new version of "on" for this breakpoint.
+	var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+	this["add" + capitalizedName + "Listener"] = function (handler) {
+		this.getWindow().addEventListener(name + "Breakpoint", handler);
+	};
+	this["remove" + capitalizedName + "Listener"] = function (handler) {
+		this.getWindow().removeEventListener(name + "Breakpoint", handler);
+	};
 };
 
 /**
