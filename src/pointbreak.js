@@ -24,6 +24,13 @@ PointBreak = function(breakpoints, targetWindow) {
 
 	this.breakpoints = {};
 
+	// Register default breakpoints.
+	if (PointBreak.defaultBreakpoints !== null) {
+		for (var name in PointBreak.defaultBreakpoints) {
+			this.registerBreakpoint(name, PointBreak.defaultBreakpoints[name]);
+		}
+	}
+
 	if (breakpoints !== undefined && breakpoints !== null) {
 		this.registerBreakpoint(breakpoints);
 	}
@@ -164,5 +171,7 @@ PointBreak.prototype.isBreakpoint = function (name) {
 	return this.getBreakpointForSize(this.getWidth()) == name;
 };
 
+// Set any breakpoints to automatically add to every instance.
+PointBreak.defaultBreakpoints = {};
 PointBreak.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
 PointBreak.MAX_BREAKPOINT = "max";

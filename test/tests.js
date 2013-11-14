@@ -81,3 +81,9 @@ asyncTest ("Resizing", function () {
 		equal (pb.getCurrentBreakpoint(), "large", "There's a reference to the window object stored in pointbreak.js");
 	}
 });
+
+test ("Default breakpoints", function () {
+	PointBreak.defaultBreakpoints = {"xxx":123};
+	var pb = new PointBreak();
+	equal(pb.getBreakpointForSize(100), "xxx", "Defining default breakpoints makes the breakpoints automatically get added.");
+})
