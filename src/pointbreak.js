@@ -146,6 +146,22 @@ var PointBreak = (function() {
     };
 
     /**
+     * Returns all registered breakpoint sizes in order as an array.
+     *
+     * @return {Array} All breakpoint sizes sorted.
+     */
+    PointBreak.prototype.getSizes = function() {
+        var sizes = [];
+        for (var breakpoint in this.breakpoints) {
+            if (this.breakpoints.hasOwnProperty(breakpoint)) {
+                sizes.push(this.breakpoints[breakpoint]);
+            }
+        }
+        sizes.sort();
+        return sizes;
+    };
+
+    /**
      * Returns the maximum width of the breakpoint with the specified name.
      *
      * @param {string} name Name of the breakpoint.

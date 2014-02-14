@@ -34,6 +34,10 @@
         assert.equal (pb.getWidth(), window.innerWidth, "getWidth gets the current width of the window.");
         pb.registerBreakpoint("test", pb.getWidth());
 
+        assert.equal (pb.getBreakpoints().test, pb.getWidth(), "Get a list of all breakpoints with getBreakpoints()");
+        assert.ok (pb.getSizes() instanceof Array, "Return an array of breakpoint sizes");
+        assert.equal (pb.getSizes()[0], pb.getWidth(), "Return an array of breakpoint sizes");
+
         assert.ok (pb.hasBreakpoint("test"), "After registering, 'test' is a registered breakpoint.");
         assert.ok (!pb.hasBreakpoint("bogus"), "'bogus' wasn't ever registered.");
 
