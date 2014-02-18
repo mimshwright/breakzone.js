@@ -7,19 +7,6 @@ Create screen breakpoints in javascript and easily react to changes in the viewp
   - Intuitive API.
   - No dependency on JQuery or other libraries.
 
-![pointbreak](http://media.giphy.com/media/8o23ZAJCavmTK/giphy.gif)
-
-## Build using Grunt
-
-- Clone repository.
-- Install all dependencies from `package.json` using `npm install`.
-- Run grunt.
-	- General development `grunt dev` or just `grunt`
-	- Open test suite (Mac only) `grunt test`
-	- Deploy `grunt deploy`
-	- Demo `grunt demo` - runs a `deploy` then opens a browser window
-	- Full list of tasks `grunt --help`
-
 ## Demo
 
 Check out the [demo](http://htmlpreview.github.io/?https://github.com/mimshwright/pointbreak.js/blob/master/demo/index.html) and view the [source code](https://github.com/mimshwright/pointbreak.js/blob/master/demo/demo.js).
@@ -68,8 +55,20 @@ if (pointbreak.isCurrentBreakpoint("small", "medium")) {
 
 For more details, check out the well documented [source code](https://github.com/mimshwright/pointbreak.js/blob/master/src/pointbreak.js).
 
+## Build using Grunt
+
+- Clone repository.
+- Install all dependencies from `package.json` using `npm install`.
+- Run grunt.
+  - General development `grunt dev` or just `grunt`
+  - Open test suite (Mac only) `grunt test`
+  - Deploy `grunt deploy`
+  - Demo `grunt demo` - runs `grunt dev` then opens a browser window
+  - Full list of tasks `grunt --help`
+
 ## Credits
 
 ### Contributors
 
 - [Mims H. Wright](http://github.com/mimshwright)	Author
+- You!?
