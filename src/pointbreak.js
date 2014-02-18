@@ -113,9 +113,14 @@ var PointBreak = (function() {
 
             // attempt to call the onXyz function for this breakpoint.
             var capitalizedName = currentBreakpoint.charAt(0).toUpperCase() + currentBreakpoint.slice(1),
-                callbackName = "on" + capitalizedName;
+                callbackName = "on" + capitalizedName,
+                callbackLowerCase = "on" + currentBreakpoint;
             if (this.hasOwnProperty(callbackName) && typeof this[callbackName] === "function") {
                 this[callbackName].call(this, this.lastBreakpoint, currentBreakpoint);
+            }
+
+            if (this.hasOwnProperty(callbackLowerCase) && typeof this[callbackLowerCase] === "function") {
+                this[callbackLowerCase].call(this, this.lastBreakpoint, currentBreakpoint);
             }
         }
     };

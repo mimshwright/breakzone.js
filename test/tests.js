@@ -69,7 +69,7 @@
         pb.registerBreakpoint({"med": 600, "large": 900});
 
 
-        QUnit.expect(11);
+        QUnit.expect(12);
 
         assert.equal(pb.getWindow(), w, "getWindow() returns the window object");
 
@@ -90,8 +90,12 @@
 
             // Use the callback to fire a function.
             pb.onLarge = function (oldBreakpoint, newBreakpoint) {
-                assert.equal(newBreakpoint, "large");
+                assert.equal(newBreakpoint, "large", "Using an `onXyz()` callback is another way to respond to changes.");
             };
+
+            pb.onmax = function (oldBreakpoint, newBreakpoint) {
+                assert.equal(newBreakpoint, "max", "Using an `onxyz()` (all lowercase) callback is another way to respond to changes.");
+            }
 
             w.resizeTo(800, 500);
         }
