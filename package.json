@@ -1,6 +1,6 @@
 {
     "name": "pointbreak.js",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Create screen breakpoints in javascript and easily react to changes in the viewport.",
     "repository": "https://github.com/mimshwright/pointbreak.js/",
     "devDependencies": {
