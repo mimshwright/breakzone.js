@@ -3,6 +3,10 @@ pointbreak.js
 
 Create screen breakpoints in javascript and easily react to changes in the viewport.
 
+  - Reference breakpoints by custom names rather than pixel sizes.
+  - Intuitive API.
+  - No dependency on JQuery or other libraries.
+
 ![pointbreak](http://media.giphy.com/media/8o23ZAJCavmTK/giphy.gif)
 
 ## Build using Grunt
