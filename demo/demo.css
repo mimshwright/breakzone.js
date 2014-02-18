@@ -1,0 +1,33 @@
+html {
+    font-family: Rockwell, American Typewriter, Monaco, Courier, monospace;
+    color: #333;
+    background: #fcfffa;
+}
+div {
+    text-align: center;
+    width: 80%;
+    margin: 20px 5%;
+    padding: 20px 5%;
+}
+ul {
+    text-align: left;
+    margin: 0 auto;
+    display: inline-block;
+}
+h1, h2 {
+    margin: 5px 0;
+    line-height: 28px;
+}
+
+#instructions {
+    background-color: #9fd9ff;
+}
+#current {
+    background-color: #84ccc4;
+}
+#size {
+    background-color: #bedd6e;
+}
+#all-breakpoints {
+    background-color: #df9a51;
+}

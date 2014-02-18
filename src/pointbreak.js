@@ -9,10 +9,10 @@ var PointBreak = (function() {
      * Sets up a system for dispatching events when breakpoints change.
      * @class PointBreak
      * @constructor
-     * @param {BreakpointObject} [breakpoints] A set of breakpoints to register when PointBreak initializes.
+     * @param {BreakpointObject} [breakpointsToAdd] A set of breakpoints to register when PointBreak initializes.
      * @param {Window} [targetWindow=window] If you want to target a different window than the current one, you may set it here.
      */
-    PointBreak = function(breakpoints, targetWindow) {
+    PointBreak = function(breakpointsToAdd, targetWindow) {
         var that = this,
             name;
 
@@ -23,20 +23,21 @@ var PointBreak = (function() {
             this.window = window;
         }
 
+        // Create the hash that holds the breakpoints
         this.breakpoints = {};
 
-        // Register default breakpoints.
+        // Automatically register a breakpoint at Infinity pixels.
+        this.registerBreakpoint(PointBreak.MAX_BREAKPOINT, PointBreak.MAX_BREAKPOINT_WIDTH);
+
+        // Register any default breakpoints.
         if (PointBreak.defaultBreakpoints !== null) {
-            for (name in PointBreak.defaultBreakpoints) {
-                if (PointBreak.defaultBreakpoints.hasOwnProperty(name)) {
-                    this.registerBreakpoint(name, PointBreak.defaultBreakpoints[name]);
-                }
-            }
+            this.registerBreakpoint(PointBreak.defaultBreakpoints);
         }
 
-        if (breakpoints !== undefined && breakpoints !== null) {
-            this.registerBreakpoint(breakpoints);
+        if (breakpointsToAdd !== undefined && breakpointsToAdd !== null) {
+            this.registerBreakpoint(breakpointsToAdd);
         }
+
 
         this.getWindow().addEventListener("resize", function(e) {
             that.onResize(e);
@@ -109,6 +110,13 @@ var PointBreak = (function() {
             specificBreakpointEvent.width = newWidth;
             this.getWindow().dispatchEvent(specificBreakpointEvent);
             this.lastBreakpoint = currentBreakpoint;
+
+            // attempt to call the onXyz function for this breakpoint.
+            var capitalizedName = currentBreakpoint.charAt(0).toUpperCase() + currentBreakpoint.slice(1),
+                callbackName = "on" + capitalizedName;
+            if (this.hasOwnProperty(callbackName) && typeof this[callbackName] === "function") {
+                this[callbackName].call(this, this.lastBreakpoint, currentBreakpoint);
+            }
         }
     };
 
@@ -128,7 +136,7 @@ var PointBreak = (function() {
      * @return {string} Breakpoint title for width.
      */
     PointBreak.prototype.getBreakpointForSize = function(width) {
-        var lowestBreakpointValue = Infinity,
+        var lowestBreakpointValue = PointBreak.MAX_BREAKPOINT_WIDTH,
             lowestBreakpointName = PointBreak.MAX_BREAKPOINT,
             breakpointName,
             breakpoint;
@@ -303,8 +311,9 @@ var PointBreak = (function() {
     // values to PointBreak.defaultBreakpoints.
     PointBreak.defaultBreakpoints = {};
 
-    PointBreak.prototype.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
-    PointBreak.prototype.MAX_BREAKPOINT = "max";
+    PointBreak.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
+    PointBreak.MAX_BREAKPOINT = "max";
+    PointBreak.MAX_BREAKPOINT_WIDTH = Infinity;
 
     return PointBreak;
 }());

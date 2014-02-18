@@ -1,6 +1,26 @@
 module.exports = function(grunt) {
     "use strict";
 
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-open');
+    grunt.loadNpmTasks('grunt-jsbeautifier');
+
+    grunt.registerTask('default', ['dev']);
+    grunt.registerTask('dev', ['js:dev']);
+    grunt.registerTask('deploy', ['clean', 'js:deploy']);
+
+    grunt.registerTask('js', ['js:dev']);
+    grunt.registerTask('js:dev', ['lint', "jsbeautifier:dev" ]);
+    grunt.registerTask('js:deploy', ['lint', "jsbeautifier:deploy", 'uglify']);
+    grunt.registerTask('lint', ['jshint']);
+    grunt.registerTask('test', ['js:dev', 'open:test']);
+    grunt.registerTask('demo', ['deploy', 'open:demo']);
+
     grunt.initConfig({
 
         jsSrcPath: 'src',
@@ -98,25 +118,4 @@ module.exports = function(grunt) {
             }
         }
     });
-
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-open');
-    grunt.loadNpmTasks('grunt-jsbeautifier');
-
-    grunt.registerTask('default', ['dev']);
-    grunt.registerTask('dev', ['js:dev']);
-    grunt.registerTask('deploy', ['clean', 'js:deploy']);
-
-    grunt.registerTask('js', ['js:dev']);
-    grunt.registerTask('js:dev', ['lint', "jsbeautifier:dev" ]);
-    grunt.registerTask('js:deploy', ['lint', "jsbeautifier:deploy", 'uglify']);
-    grunt.registerTask('lint', ['jshint']);
-    grunt.registerTask('test', ['js:dev', 'open:test']);
-    grunt.registerTask('demo', ['deploy', 'open:demo']);
-
 };

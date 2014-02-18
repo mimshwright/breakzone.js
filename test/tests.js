@@ -32,24 +32,27 @@
 
     QUnit.test ("methods for setting and getting breakpoints", function (assert) {
         assert.equal (pb.getWidth(), window.innerWidth, "getWidth gets the current width of the window.");
+        assert.equal (pb.getCurrentBreakpoint(), PointBreak.MAX_BREAKPOINT, "Before any other breakpoints are registered, the max breakpoint is the only one.");
+
         pb.registerBreakpoint("test", pb.getWidth());
 
         assert.equal (pb.getBreakpoints().test, pb.getWidth(), "Get a list of all breakpoints with getBreakpoints()");
-        assert.ok (pb.getSizes() instanceof Array, "Return an array of breakpoint sizes");
+        assert.ok    (pb.getSizes() instanceof Array, "Return an array of breakpoint sizes");
         assert.equal (pb.getSizes()[0], pb.getWidth(), "Return an array of breakpoint sizes");
 
-        assert.ok (pb.hasBreakpoint("test"), "After registering, 'test' is a registered breakpoint.");
-        assert.ok (!pb.hasBreakpoint("bogus"), "'bogus' wasn't ever registered.");
+        assert.ok    (pb.hasBreakpoint("test"), "After registering, 'test' is a registered breakpoint.");
+        assert.ok    (!pb.hasBreakpoint("bogus"), "'bogus' wasn't ever registered.");
 
-        assert.ok (pb.isCurrentBreakpoint("test"), "'test' is the current breakpoint (since it's based on getWidth())");
-        assert.ok (pb.isCurrentBreakpoint("a", "b", "c", "test"), "isCurrentBreakpoint() takes multiple params and is true if any match");
-        assert.ok (!pb.isCurrentBreakpoint("a", "b", "c"), "isCurrentBreakpoint() fails if none match");
+        assert.ok    (pb.isCurrentBreakpoint("test"), "'test' is the current breakpoint (since it's based on getWidth())");
+        assert.ok    (pb.isCurrentBreakpoint("a", "b", "c", "test"), "isCurrentBreakpoint() takes multiple params and is true if any match");
+        assert.ok    (!pb.isCurrentBreakpoint("a", "b", "c"), "isCurrentBreakpoint() fails if none match");
 
-        assert.equal ( pb.getBreakpoints().test, pb.getWidth(), "The value set is the max for the breakpoint.");
-        assert.equal ( pb.getCurrentBreakpoint(), "test", "current breakpoint maps to the name of the current breakpoint.");
-        assert.equal ( pb.getBreakpointForSize(pb.getWidth()), "test", "getBreakpointForSize() returns the name of the breakpoint at the given size.");
-        assert.equal ( pb.getSizeOfBreakpoint("test"), pb.getWidth(), "getSizeOfBreakpoint() returns the max size of the breakpoint or 0.");
-        assert.equal ( pb.getSizeOfBreakpoint("bogus"), 0, "getSizeOfBreakpoint() returns the size of the breakpoint or 0.");
+        assert.equal (pb.getBreakpoints().test, pb.getWidth(), "The value set is the max for the breakpoint.");
+        assert.equal (pb.getCurrentBreakpoint(), "test", "current breakpoint maps to the name of the current breakpoint.");
+        assert.equal (pb.getBreakpointForSize(pb.getWidth()), "test", "getBreakpointForSize() returns the name of the breakpoint at the given size.");
+        assert.equal (pb.getSizeOfBreakpoint("test"), pb.getWidth(), "getSizeOfBreakpoint() returns the max size of the breakpoint or 0.");
+        assert.equal (pb.getSizeOfBreakpoint("bogus"), 0, "getSizeOfBreakpoint() returns the size of the breakpoint or 0.");
+
         pb.unregisterBreakpoint("test");
         assert.equal (pb.getCurrentBreakpoint(), PointBreak.MAX_BREAKPOINT, "unregisterBreakpoint removes breakpoints. MAX_BREAKPOINT is the only default breakpoint.");
     });
@@ -65,7 +68,8 @@
         pb.registerBreakpoint("small", 300);
         pb.registerBreakpoint({"med": 600, "large": 900});
 
-        QUnit.expect(9);
+
+        QUnit.expect(11);
 
         assert.equal(pb.getWindow(), w, "getWindow() returns the window object");
 
@@ -82,6 +86,12 @@
 
             pb.addChangeListener(onWindowChange);
             pb.addLargeListener(onLargeBreakpoint);
+            pb.addMaxListener(onMaxBreakpoint);
+
+            // Use the callback to fire a function.
+            pb.onLarge = function (oldBreakpoint, newBreakpoint) {
+                assert.equal(newBreakpoint, "large");
+            };
 
             w.resizeTo(800, 500);
         }
@@ -91,6 +101,7 @@
             assert.equal (event.oldBreakpoint, "med", "Change listener is provided the old breakpoint");
             assert.equal (event.newBreakpoint, "large", "and the new breakpoint");
             pb.removeChangeListener(onWindowChange);
+            w.resizeTo(1200, 500);
         }
 
         function onLargeBreakpoint (event) {
@@ -98,6 +109,10 @@
             assert.equal (event.oldBreakpoint, "med", "Change listener is provided the old breakpoint");
             assert.equal (event.newBreakpoint, "large", "and the new breakpoint");
             assert.equal (pb.getCurrentBreakpoint(), "large", "There's a reference to the window object stored in pointbreak.js");
+        }
+
+        function onMaxBreakpoint (event) {
+            assert.ok(1, "Triggered max breakpoint");
         }
     });
 
