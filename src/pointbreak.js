@@ -197,6 +197,22 @@ var PointBreak = (function() {
     };
 
     /**
+     * Returns the current orientation of the window.
+     *
+     * @returns {string} Either "landscape" or "portrait". Square windows return "landscape".
+     *
+     * @see PointBreak.LANDSCAPE
+     * @see PointBreak.PORTRAIT
+     */
+    PointBreak.prototype.getCurrentOrientation = function() {
+        var w = this.window;
+        if (w.innerWidth >= w.innerHeight) {
+            return PointBreak.LANDSCAPE;
+        }
+        return PointBreak.PORTRAIT;
+    };
+
+    /**
      * Add a breakpoint with `name` at the specified `width`.
      *
      * @param {BreakpointObject|string} object_or_name If this value is a string, use it as the name
@@ -319,6 +335,10 @@ var PointBreak = (function() {
     PointBreak.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
     PointBreak.MAX_BREAKPOINT = "max";
     PointBreak.MAX_BREAKPOINT_WIDTH = Infinity;
+
+    // used by getCurrentOrientation()
+    PointBreak.LANDSCAPE = "landscape";
+    PointBreak.PORTRAIT = "portrait";
 
     return PointBreak;
 }());

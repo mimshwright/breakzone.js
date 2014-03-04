@@ -120,6 +120,47 @@
         }
     });
 
+    QUnit.asyncTest ("Orientation", function (assert) {
+        var w = window.open();
+        var pb = new PointBreak(null, w);
+
+        QUnit.expect(3);
+
+        setTimeout(onWindowLoad, 1000);
+        setTimeout(function () {
+            w.close();
+            QUnit.start();
+        }, 2000);
+
+        function onWindowLoad() {
+            w.addEventListener("resize", onResizePortrait);
+            w.resizeTo(480,640);
+
+            function onResizePortrait () {
+                w.removeEventListener("resize", onResizePortrait);
+                w.addEventListener("resize", onResizeLandscape);
+
+                assert.equal(pb.getCurrentOrientation(), PointBreak.PORTRAIT, "Portrait orientation ok");
+                w.resizeTo(640, 480);
+            }
+
+            function onResizeLandscape () {
+                w.removeEventListener("resize", onResizeLandscape);
+                w.addEventListener("resize", onResizeSquare);
+
+                assert.equal(pb.getCurrentOrientation(), PointBreak.LANDSCAPE, "Landscape orientation ok");
+                w.resizeTo(500, 500);
+            }
+
+            function onResizeSquare () {
+                w.removeEventListener("resize", onResizeSquare);
+
+                assert.equal(pb.getCurrentOrientation(), PointBreak.LANDSCAPE, "Use landscape for square windows");
+            }
+        }
+
+    });
+
     QUnit.test ("Default breakpoints", function (assert) {
         PointBreak.defaultBreakpoints = {"xxx":123};
         var pb = new PointBreak();
