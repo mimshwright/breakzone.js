@@ -50,6 +50,8 @@
         assert.equal (pb.getBreakpoints().test, pb.getWidth(), "The value set is the max for the breakpoint.");
         assert.equal (pb.getCurrentBreakpoint(), "test", "current breakpoint maps to the name of the current breakpoint.");
         assert.equal (pb.getBreakpointForSize(pb.getWidth()), "test", "getBreakpointForSize() returns the name of the breakpoint at the given size.");
+        assert.equal (pb.getBreakpointForSize(NaN), null, "getBreakpointForSize() returns null if the size is bogus");
+        assert.equal (pb.getBreakpointForSize(-100), null, "getBreakpointForSize() returns null if the size is negative");
         assert.equal (pb.getSizeOfBreakpoint("test"), pb.getWidth(), "getSizeOfBreakpoint() returns the max size of the breakpoint or 0.");
         assert.equal (pb.getSizeOfBreakpoint("bogus"), 0, "getSizeOfBreakpoint() returns the size of the breakpoint or 0.");
 
@@ -61,17 +63,17 @@
     QUnit.module ("Responding to window resizing");
 
     QUnit.asyncTest ("Resizing", function (assert) {
-        var w = window.open();
+        QUnit.expect(12);
+
+        var w = window.open("", "resizing");
+        w.document.write("Resizing Test");
         w.resizeTo(500,500);
 
         var pb = new PointBreak(null, w);
+        assert.equal(pb.getWindow(), w, "getWindow() returns the window object");
+
         pb.registerBreakpoint("small", 300);
         pb.registerBreakpoint({"med": 600, "large": 900});
-
-
-        QUnit.expect(12);
-
-        assert.equal(pb.getWindow(), w, "getWindow() returns the window object");
 
         setTimeout(onWindowLoad, 1000);
         setTimeout(function () {
@@ -95,7 +97,7 @@
 
             pb.onmax = function (oldBreakpoint, newBreakpoint) {
                 assert.equal(newBreakpoint, "max", "Using an `onxyz()` (all lowercase) callback is another way to respond to changes.");
-            }
+            };
 
             w.resizeTo(800, 500);
         }
@@ -121,7 +123,8 @@
     });
 
     QUnit.asyncTest ("Orientation", function (assert) {
-        var w = window.open();
+        var w = window.open("", "orientation");
+        w.document.write("Orientation Test");
         var pb = new PointBreak(null, w);
 
         QUnit.expect(3);
@@ -165,5 +168,66 @@
         PointBreak.defaultBreakpoints = {"xxx":123};
         var pb = new PointBreak();
         assert.equal(pb.getBreakpointForSize(100), "xxx", "Defining default breakpoints makes the breakpoints automatically get added.");
+    });
+
+
+    QUnit.test ("Events", function (assert) {
+        var pb = new PointBreak();
+        assert.equal(pb.removeEventListener("BOGUS", null), null, "removeEventListener fails silently.");
+        assert.throws(function () { pb.addEventListener("BOGUS", null); }, "you must define a function when you add and event listener");
+        assert.throws(function () { pb.addEventListener("BOGUS", "not a function"); }, "you must define a function when you add and event listener");
+        pb.addEventListener("test", function () { assert.ok(true, "Handler was called"); });
+        pb.dispatchEvent({type:"test"});
+    });
+
+    QUnit.asyncTest ("Prevent multiple dispatches", function (assert) {
+        QUnit.expect(4);
+
+        var w = window.open("","multipleDisptaches","width=800,height=800");
+        w.document.write("Multiple Dispatches Test");
+        var changeCount1 = 0,
+            changeCount2 = 0,
+            medCount = 0,
+            changeCount3 = 0;
+        var sizes = {"small":300, "med":500, "large": 800};
+        var pb1 = new PointBreak(sizes, w);
+        var pb2 = new PointBreak(sizes, w);
+        var pb3 = new PointBreak(null, w);
+
+        pb1.addChangeListener(onChange1);
+        pb2.addChangeListener(onChange2);
+        pb1.addMedListener(onMed);
+        pb3.addChangeListener(onChange3);
+
+
+
+        setTimeout(onWindowLoad, 1000);
+
+        function onWindowLoad() {
+            w.resizeTo(400,400);
+
+            setTimeout(function () {
+                w.close();
+                assert.equal(changeCount1, 2, "change events should only be dispatched from the object that was used to add the handler. Once for change and once on load.");
+                assert.equal(changeCount2, 2, "change events should only be dispatched from the object that was used to add the handler. Once for change and once on load.");
+                assert.equal(changeCount3, 1, "listener for pb3 should only be fired on load since it has only one breakpoint and that should never change.");
+                assert.equal(medCount, 1, "specific size event should only be dispatched from the object that was used to add the handler.");
+                QUnit.start();
+            }, 1000);
+
+        }
+
+        function onChange1() {
+            changeCount1++;
+        }
+        function onChange2() {
+            changeCount2++;
+        }
+        function onChange3() {
+            changeCount3++;
+        }
+        function onMed() {
+            medCount ++;
+        }
     });
 }());

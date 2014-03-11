@@ -25,6 +25,7 @@ var PointBreak = (function() {
 
         // Create the hash that holds the breakpoints
         this.breakpoints = {};
+        this.listeners = {};
 
         // Automatically register a breakpoint at Infinity pixels.
         this.registerBreakpoint(PointBreak.MAX_BREAKPOINT, PointBreak.MAX_BREAKPOINT_WIDTH);
@@ -38,6 +39,8 @@ var PointBreak = (function() {
             this.registerBreakpoint(breakpointsToAdd);
         }
 
+        /** @prop lastSize {int} */
+        this.lastSize = NaN;
 
         this.getWindow().addEventListener("resize", function(e) {
             that.onResize(e);
@@ -48,12 +51,70 @@ var PointBreak = (function() {
     };
 
     /**
+     * @private
+     * Adds an event listener to this object as if it were a dom element.
+     * @param type {string} The type of event to listen for.
+     * @param listener {function} A function to call when the event is dispatched.
+     */
+    PointBreak.prototype.addEventListener = function(type, listener) {
+        if (!listener || typeof listener != "function") {
+            throw new Error("listener parameter must be defined and be a function.");
+        }
+        this.listeners[type] = this.listeners[type] || [];
+        this.listeners[type].push(listener);
+    };
+
+    /**
+     * @private
+     * Removes a registered listener for an event.
+     *
+     * @param type {string} The type of event to remove the listener for.
+     * @param listener {function} The function to remove.
+     */
+    PointBreak.prototype.removeEventListener = function(type, listener) {
+        var typeListeners = this.listeners[type],
+            index;
+
+        if (typeListeners) {
+            index = typeListeners.indexOf(listener);
+        } else {
+            return;
+        }
+        if (index >= 0) {
+            typeListeners.splice(index, 1);
+        }
+    };
+
+    /**
+     * Dispatches an event.
+     *
+     * @param event {Event} An event object.
+     */
+    PointBreak.prototype.dispatchEvent = function(event) {
+        var typeListeners = this.listeners[event.type],
+            i = 0,
+            l,
+            listener;
+
+        if (typeListeners) {
+            l = typeListeners.length;
+        } else {
+            return;
+        }
+
+        for (; i < l; i += 1) {
+            listener = typeListeners[i];
+            listener.call(this.getWindow(), event);
+        }
+    };
+
+    /**
      * Shortcut for listening to the BREAKPOINT_CHANGE_EVENT on the window
      *
      * @param {BreakpointChangeHandler} handler
      */
     PointBreak.prototype.addChangeListener = function(handler) {
-        this.getWindow().addEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+        this.addEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
     };
 
     /**
@@ -62,7 +123,7 @@ var PointBreak = (function() {
      * @param {BreakpointChangeHandler} handler
      */
     PointBreak.prototype.removeChangeListener = function(handler) {
-        this.getWindow().removeEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+        this.removeEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
     };
 
     /**
@@ -89,39 +150,41 @@ var PointBreak = (function() {
     PointBreak.prototype.onResize = function() {
         var newWidth = this.getWidth(),
             currentBreakpoint = this.getBreakpointForSize(newWidth),
+            lastBreakpoint = this.getBreakpointForSize(this.lastSize),
             breakpointChangeEvent,
             specificBreakpointEvent;
 
-        if (this.lastBreakpoint !== currentBreakpoint) {
+        if (lastBreakpoint !== currentBreakpoint) {
             // Dispatch a generic event for this breakpoint change.
             breakpointChangeEvent = document.createEvent("Event");
             breakpointChangeEvent.initEvent(PointBreak.BREAKPOINT_CHANGE_EVENT, true, true);
-            breakpointChangeEvent.oldBreakpoint = this.lastBreakpoint;
+            breakpointChangeEvent.oldBreakpoint = lastBreakpoint;
             breakpointChangeEvent.newBreakpoint = currentBreakpoint;
             breakpointChangeEvent.width = newWidth;
-            this.getWindow().dispatchEvent(breakpointChangeEvent);
+            this.dispatchEvent(breakpointChangeEvent);
 
             // Dispatch a special event type for this breakpoint name
             // e.g. "smallBreakpoint"
             specificBreakpointEvent = document.createEvent("Event");
             specificBreakpointEvent.initEvent(currentBreakpoint + "Breakpoint", true, true);
-            specificBreakpointEvent.oldBreakpoint = this.lastBreakpoint;
+            specificBreakpointEvent.oldBreakpoint = lastBreakpoint;
             specificBreakpointEvent.newBreakpoint = currentBreakpoint;
             specificBreakpointEvent.width = newWidth;
-            this.getWindow().dispatchEvent(specificBreakpointEvent);
-            this.lastBreakpoint = currentBreakpoint;
+            this.dispatchEvent(specificBreakpointEvent);
 
             // attempt to call the onXyz function for this breakpoint.
             var capitalizedName = currentBreakpoint.charAt(0).toUpperCase() + currentBreakpoint.slice(1),
                 callbackName = "on" + capitalizedName,
                 callbackLowerCase = "on" + currentBreakpoint;
             if (this.hasOwnProperty(callbackName) && typeof this[callbackName] === "function") {
-                this[callbackName].call(this, this.lastBreakpoint, currentBreakpoint);
+                this[callbackName].call(this, lastBreakpoint, currentBreakpoint);
             }
 
             if (this.hasOwnProperty(callbackLowerCase) && typeof this[callbackLowerCase] === "function") {
-                this[callbackLowerCase].call(this, this.lastBreakpoint, currentBreakpoint);
+                this[callbackLowerCase].call(this, lastBreakpoint, currentBreakpoint);
             }
+
+            this.lastSize = newWidth;
         }
     };
 
@@ -145,6 +208,10 @@ var PointBreak = (function() {
             lowestBreakpointName = PointBreak.MAX_BREAKPOINT,
             breakpointName,
             breakpoint;
+
+        if (isNaN(width) || width < 0) {
+            return null;
+        }
 
         for (breakpointName in this.breakpoints) {
             if (this.breakpoints.hasOwnProperty(breakpointName)) {
@@ -277,10 +344,10 @@ var PointBreak = (function() {
         // Add a new version of "on" for this breakpoint.
         var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
         this["add" + capitalizedName + "Listener"] = function(handler) {
-            this.getWindow().addEventListener(name + "Breakpoint", handler);
+            this.addEventListener(name + "Breakpoint", handler);
         };
         this["remove" + capitalizedName + "Listener"] = function(handler) {
-            this.getWindow().removeEventListener(name + "Breakpoint", handler);
+            this.removeEventListener(name + "Breakpoint", handler);
         };
     };
 
