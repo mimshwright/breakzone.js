@@ -172,12 +172,21 @@
 
 
     QUnit.test ("Events", function (assert) {
+        QUnit.expect(4);
         var pb = new PointBreak();
         assert.equal(pb.removeEventListener("BOGUS", null), null, "removeEventListener fails silently.");
         assert.throws(function () { pb.addEventListener("BOGUS", null); }, "you must define a function when you add and event listener");
         assert.throws(function () { pb.addEventListener("BOGUS", "not a function"); }, "you must define a function when you add and event listener");
-        pb.addEventListener("test", function () { assert.ok(true, "Handler was called"); });
+        pb.addEventListener("test", onTest);
         pb.dispatchEvent({type:"test"});
+        pb.removeEventListener("test", onTest);
+
+        // note: This should not cause an assertion to be called.
+        // If it does, the test should be red because of the QUnit.expect()
+        // call at the top of the test.
+        pb.dispatchEvent({type:"test"});
+
+        function onTest () { assert.ok(true, "Handler was called"); }
     });
 
     QUnit.asyncTest ("Prevent multiple dispatches", function (assert) {
