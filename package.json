@@ -1,6 +1,6 @@
 {
     "name": "breakzone.js",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "Create screen breakpoints in javascript and easily react to changes in the viewport.",
     "repository": "https://github.com/mimshwright/breakzone.js/",
     "devDependencies": {
