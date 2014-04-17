@@ -1,18 +1,18 @@
 // js-hint globals
 /*global define,window,document*/
-/*exported PointBreak*/
+/*exported BreakZone*/
 
-var PointBreak = (function() {
+var BreakZone = (function() {
     "use strict";
 
     /**
      * Sets up a system for dispatching events when breakpoints change.
-     * @class PointBreak
+     * @class BreakZone
      * @constructor
-     * @param {BreakpointObject} [breakpointsToAdd] A set of breakpoints to register when PointBreak initializes.
+     * @param {BreakpointObject} [breakpointsToAdd] A set of breakpoints to register when BreakZone initializes.
      * @param {Window} [targetWindow=window] If you want to target a different window than the current one, you may set it here.
      */
-    PointBreak = function(breakpointsToAdd, targetWindow) {
+    BreakZone = function(breakpointsToAdd, targetWindow) {
         var that = this,
             name;
 
@@ -28,11 +28,11 @@ var PointBreak = (function() {
         this.listeners = {};
 
         // Automatically register a breakpoint at Infinity pixels.
-        this.registerBreakpoint(PointBreak.MAX_BREAKPOINT, PointBreak.MAX_BREAKPOINT_WIDTH);
+        this.registerBreakpoint(BreakZone.MAX_BREAKPOINT, BreakZone.MAX_BREAKPOINT_WIDTH);
 
         // Register any default breakpoints.
-        if (PointBreak.defaultBreakpoints !== null) {
-            this.registerBreakpoint(PointBreak.defaultBreakpoints);
+        if (BreakZone.defaultBreakpoints !== null) {
+            this.registerBreakpoint(BreakZone.defaultBreakpoints);
         }
 
         if (breakpointsToAdd !== undefined && breakpointsToAdd !== null) {
@@ -56,7 +56,7 @@ var PointBreak = (function() {
      * @param type {string} The type of event to listen for.
      * @param listener {function} A function to call when the event is dispatched.
      */
-    PointBreak.prototype.addEventListener = function(type, listener) {
+    BreakZone.prototype.addEventListener = function(type, listener) {
         if (!listener || typeof listener != "function") {
             throw new Error("listener parameter must be defined and be a function.");
         }
@@ -71,7 +71,7 @@ var PointBreak = (function() {
      * @param type {string} The type of event to remove the listener for.
      * @param listener {function} The function to remove.
      */
-    PointBreak.prototype.removeEventListener = function(type, listener) {
+    BreakZone.prototype.removeEventListener = function(type, listener) {
         var typeListeners = this.listeners[type],
             index;
 
@@ -90,7 +90,7 @@ var PointBreak = (function() {
      *
      * @param event {Event} An event object.
      */
-    PointBreak.prototype.dispatchEvent = function(event) {
+    BreakZone.prototype.dispatchEvent = function(event) {
         var typeListeners = this.listeners[event.type],
             i = 0,
             l,
@@ -113,8 +113,8 @@ var PointBreak = (function() {
      *
      * @param {BreakpointChangeHandler} handler
      */
-    PointBreak.prototype.addChangeListener = function(handler) {
-        this.addEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+    BreakZone.prototype.addChangeListener = function(handler) {
+        this.addEventListener(BreakZone.BREAKPOINT_CHANGE_EVENT, handler);
     };
 
     /**
@@ -122,8 +122,8 @@ var PointBreak = (function() {
      *
      * @param {BreakpointChangeHandler} handler
      */
-    PointBreak.prototype.removeChangeListener = function(handler) {
-        this.removeEventListener(PointBreak.BREAKPOINT_CHANGE_EVENT, handler);
+    BreakZone.prototype.removeChangeListener = function(handler) {
+        this.removeEventListener(BreakZone.BREAKPOINT_CHANGE_EVENT, handler);
     };
 
     /**
@@ -131,23 +131,23 @@ var PointBreak = (function() {
      *
      * @return {number} width of screen.
      */
-    PointBreak.prototype.getWidth = function() {
+    BreakZone.prototype.getWidth = function() {
         return this.getWindow().innerWidth;
     };
 
     /**
-     * Returns PointBreak's target window.
+     * Returns BreakZone's target window.
      *
      * @returns {Window} window
      */
-    PointBreak.prototype.getWindow = function() {
+    BreakZone.prototype.getWindow = function() {
         return this.window;
     };
 
     /**
      * Called when the window resizes.
      */
-    PointBreak.prototype.onResize = function() {
+    BreakZone.prototype.onResize = function() {
         var newWidth = this.getWidth(),
             currentBreakpoint = this.getBreakpointForSize(newWidth),
             lastBreakpoint = this.getBreakpointForSize(this.lastSize),
@@ -157,7 +157,7 @@ var PointBreak = (function() {
         if (lastBreakpoint !== currentBreakpoint) {
             // Dispatch a generic event for this breakpoint change.
             breakpointChangeEvent = document.createEvent("Event");
-            breakpointChangeEvent.initEvent(PointBreak.BREAKPOINT_CHANGE_EVENT, true, true);
+            breakpointChangeEvent.initEvent(BreakZone.BREAKPOINT_CHANGE_EVENT, true, true);
             breakpointChangeEvent.oldBreakpoint = lastBreakpoint;
             breakpointChangeEvent.newBreakpoint = currentBreakpoint;
             breakpointChangeEvent.width = newWidth;
@@ -193,7 +193,7 @@ var PointBreak = (function() {
      *
      * @return {BreakpointObject} breakpoints.
      */
-    PointBreak.prototype.getBreakpoints = function() {
+    BreakZone.prototype.getBreakpoints = function() {
         return this.breakpoints;
     };
 
@@ -203,9 +203,9 @@ var PointBreak = (function() {
      * @param {number} width Any width number to check the name of.
      * @return {string} Breakpoint title for width.
      */
-    PointBreak.prototype.getBreakpointForSize = function(width) {
-        var lowestBreakpointValue = PointBreak.MAX_BREAKPOINT_WIDTH,
-            lowestBreakpointName = PointBreak.MAX_BREAKPOINT,
+    BreakZone.prototype.getBreakpointForSize = function(width) {
+        var lowestBreakpointValue = BreakZone.MAX_BREAKPOINT_WIDTH,
+            lowestBreakpointName = BreakZone.MAX_BREAKPOINT,
             breakpointName,
             breakpoint;
 
@@ -230,7 +230,7 @@ var PointBreak = (function() {
      *
      * @return {Array} All breakpoint sizes sorted.
      */
-    PointBreak.prototype.getSizes = function() {
+    BreakZone.prototype.getSizes = function() {
         var sizes = [];
         for (var breakpoint in this.breakpoints) {
             if (this.breakpoints.hasOwnProperty(breakpoint)) {
@@ -247,7 +247,7 @@ var PointBreak = (function() {
      * @param {string} name Name of the breakpoint.
      * @returns {number} The maximum width of the breakpoint.
      */
-    PointBreak.prototype.getSizeOfBreakpoint = function(name) {
+    BreakZone.prototype.getSizeOfBreakpoint = function(name) {
         if (this.hasBreakpoint(name)) {
             return this.breakpoints[name];
         }
@@ -259,7 +259,7 @@ var PointBreak = (function() {
      *
      * @return {string} Name of the current breakpoint.
      */
-    PointBreak.prototype.getCurrentBreakpoint = function() {
+    BreakZone.prototype.getCurrentBreakpoint = function() {
         return this.getBreakpointForSize(this.getWidth());
     };
 
@@ -268,15 +268,15 @@ var PointBreak = (function() {
      *
      * @returns {string} Either "landscape" or "portrait". Square windows return "landscape".
      *
-     * @see PointBreak.LANDSCAPE
-     * @see PointBreak.PORTRAIT
+     * @see BreakZone.LANDSCAPE
+     * @see BreakZone.PORTRAIT
      */
-    PointBreak.prototype.getCurrentOrientation = function() {
+    BreakZone.prototype.getCurrentOrientation = function() {
         var w = this.window;
         if (w.innerWidth >= w.innerHeight) {
-            return PointBreak.LANDSCAPE;
+            return BreakZone.LANDSCAPE;
         }
-        return PointBreak.PORTRAIT;
+        return BreakZone.PORTRAIT;
     };
 
     /**
@@ -288,7 +288,7 @@ var PointBreak = (function() {
      *                                  was a hash of breakpoint names and widths.
      * @param {number} [width] The maximum width of the breakpoint (if object_or_name was a string)
      */
-    PointBreak.prototype.registerBreakpoint = function(object_or_name, width) {
+    BreakZone.prototype.registerBreakpoint = function(object_or_name, width) {
         var obj, name;
 
         // check to see if the object_or_name was a string.
@@ -316,7 +316,7 @@ var PointBreak = (function() {
      * @param {string} name Name of the breakpoint.
      * @param {number} width Max width of the breakpoint.
      */
-    PointBreak.prototype.registerSingleBreakpoint = function(name, width) {
+    BreakZone.prototype.registerSingleBreakpoint = function(name, width) {
         this.breakpoints[name] = width;
 
         this.addListenerFunctionsForBreakpoint(name);
@@ -327,20 +327,20 @@ var PointBreak = (function() {
      *
      * @param {string} name The name of the breakpoint to remove.
      */
-    PointBreak.prototype.unregisterBreakpoint = function(name) {
+    BreakZone.prototype.unregisterBreakpoint = function(name) {
         this.breakpoints[name] = null;
         this.removeListenerFunctionsForBreakpoint(name);
     };
 
     /**
      * @private
-     * Creates two functions on the instance of PointBreak for adding and removing listeners.
+     * Creates two functions on the instance of BreakZone for adding and removing listeners.
      * They are addNameListener() and removeNameListener() where "Name" would be replaced with
      * the name of the breakpoint. E.g. addSmallListener()
      *
      * @param name The name of the breakpoint
      */
-    PointBreak.prototype.addListenerFunctionsForBreakpoint = function(name) {
+    BreakZone.prototype.addListenerFunctionsForBreakpoint = function(name) {
         // Add a new version of "on" for this breakpoint.
         var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
         this["add" + capitalizedName + "Listener"] = function(handler) {
@@ -357,7 +357,7 @@ var PointBreak = (function() {
      *
      * @param {string} name The name of the breakpoint to remove the listeners for.
      */
-    PointBreak.prototype.removeListenerFunctionsForBreakpoint = function(name) {
+    BreakZone.prototype.removeListenerFunctionsForBreakpoint = function(name) {
         var capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
         this["add" + capitalizedName + "Listener"] =
             this["remove" + capitalizedName + "Listener"] = null;
@@ -368,7 +368,7 @@ var PointBreak = (function() {
      *
      * @param {string} name A breakpoint to check.
      */
-    PointBreak.prototype.hasBreakpoint = function(name) {
+    BreakZone.prototype.hasBreakpoint = function(name) {
         return !isNaN(this.getBreakpoints()[name]);
     };
 
@@ -380,9 +380,9 @@ var PointBreak = (function() {
      *
      * @example
      * // returns true if the window is in the small or medium breakpoint zone.
-     * myPointBreak.isCurrentBreakpoint("small", "medium");
+     * myBreakZone.isCurrentBreakpoint("small", "medium");
      */
-    PointBreak.prototype.isCurrentBreakpoint = function(name) {
+    BreakZone.prototype.isCurrentBreakpoint = function(name) {
         var i = 0,
             l = arguments.length,
             result = false,
@@ -395,26 +395,26 @@ var PointBreak = (function() {
         return result;
     };
 
-    // You can add breakpoints to all instances of PointBreak by adding
-    // values to PointBreak.defaultBreakpoints.
-    PointBreak.defaultBreakpoints = {};
+    // You can add breakpoints to all instances of BreakZone by adding
+    // values to BreakZone.defaultBreakpoints.
+    BreakZone.defaultBreakpoints = {};
 
-    PointBreak.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
-    PointBreak.MAX_BREAKPOINT = "max";
-    PointBreak.MAX_BREAKPOINT_WIDTH = Infinity;
+    BreakZone.BREAKPOINT_CHANGE_EVENT = "breakpointChange";
+    BreakZone.MAX_BREAKPOINT = "max";
+    BreakZone.MAX_BREAKPOINT_WIDTH = Infinity;
 
     // used by getCurrentOrientation()
-    PointBreak.LANDSCAPE = "landscape";
-    PointBreak.PORTRAIT = "portrait";
+    BreakZone.LANDSCAPE = "landscape";
+    BreakZone.PORTRAIT = "portrait";
 
-    return PointBreak;
+    return BreakZone;
 }());
 
 // AMD / Require.js definition
 if (typeof define === "function" && define.amd) {
-    define("PointBreak", [], function() {
+    define("BreakZone", [], function() {
         "use strict";
-        return PointBreak;
+        return BreakZone;
     });
 }
 

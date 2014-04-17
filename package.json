@@ -1,8 +1,8 @@
 {
-    "name": "pointbreak.js",
+    "name": "breakzone.js",
     "version": "0.5.0",
     "description": "Create screen breakpoints in javascript and easily react to changes in the viewport.",
-    "repository": "https://github.com/mimshwright/pointbreak.js/",
+    "repository": "https://github.com/mimshwright/breakzone.js/",
     "devDependencies": {
         "grunt": "~0.4.1",
         "grunt-contrib-clean": ">=0.5",

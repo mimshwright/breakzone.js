@@ -1,11 +1,11 @@
-/*global PointBreak,document*/
+/*global BreakZone,document*/
 
-// A demonstration using PointBreak to see the breakpoints.
+// A demonstration using BreakZone to see the breakpoints.
 window.onload = function () {
     "use strict";
 
-    /** @type {PointBreak} */
-    var pb = new PointBreak(
+    /** @type {BreakZone} */
+    var bz = new BreakZone(
         // Pass in an object containing the breakpoints to register.
         {
             "tiny": 360,
@@ -18,10 +18,10 @@ window.onload = function () {
     /*
         // Alternatively, you can add breakpoints using registerBreakpoint()
         // either one at a time...
-        pb.registerBreakpoint("myBreakpoint", 1234);
+        bz.registerBreakpoint("myBreakpoint", 1234);
 
         // or as a list
-        pb.registerBreakpoint({
+        bz.registerBreakpoint({
             "foo": 400,
             "bar": 600,
             "baz": 800
@@ -30,7 +30,7 @@ window.onload = function () {
 
     // Add a change listener.
     // This function gets called whenever the current breakpoint changes.
-    pb.addChangeListener(onBreakpointChanged);
+    bz.addChangeListener(onBreakpointChanged);
 
     // print all registered breakpoints to a div.
     renderAllBreakpointInfo("all-breakpoints");
@@ -63,7 +63,7 @@ window.onload = function () {
      */
     function renderCurrentBreakpointInfo (id) {
         var output = document.getElementById(id);
-        output.innerHTML = "Current breakpoint : " + pb.getCurrentBreakpoint();
+        output.innerHTML = "Current breakpoint : " + bz.getCurrentBreakpoint();
     }
 
 
@@ -76,7 +76,7 @@ window.onload = function () {
         var breakpointInfo = "<h2>All breakpoints:</h2>",
             output = document.getElementById(id),
             breakpoint,
-            breakpoints = pb.getBreakpoints();
+            breakpoints = bz.getBreakpoints();
 
         breakpointInfo += "<ul>";
         // loop through every breakpoint by name.
@@ -97,7 +97,7 @@ window.onload = function () {
      */
     function renderCurrentSizeInfo(id) {
         var output = document.getElementById(id);
-        output.innerHTML = "Current size : " + pb.getWidth();
+        output.innerHTML = "Current size : " + bz.getWidth();
     }
 
 }
